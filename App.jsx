@@ -1,49 +1,42 @@
-import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import ProductList from "./components/ProductList";
+import Cart from "./components/Cart";
 
-/**
- * Main App component
- * Controls navigation between landing page and product list
- */
 function App() {
-  // State to control when product list is displayed
-  const [showProducts, setShowProducts] = useState(false);
-
-  /**
-   * Handle "Get Started" button click
-   * Switches view to product list
-   */
-  const handleGetStarted = () => {
-    setShowProducts(true);
-  };
-
   return (
-    <div className="app-container">
+    <Router>
+      <div className="app-container">
 
-      {/* Landing Page */}
-      {!showProducts && (
-        <div className="landing-page">
+        <Routes>
 
-          {/* Correct title required for grading */}
-          <h1>Welcome to Paradise Nursery</h1>
+          {/* Landing Page */}
+          <Route
+            path="/"
+            element={
+              <div className="landing-page">
+                <h1>Welcome to Paradise Nursery</h1>
+                <p>
+                  Discover a wide variety of beautiful indoor plants and bring nature into your home.
+                </p>
 
-          <p>
-            Discover a wide variety of beautiful indoor plants and bring nature
-            into your home.
-          </p>
+                <a href="/products">
+                  <button>Get Started</button>
+                </a>
+              </div>
+            }
+          />
 
-          {/* Get Started button */}
-          <button onClick={handleGetStarted}>
-            Get Started
-          </button>
+          {/* Products Page */}
+          <Route path="/products" element={<ProductList />} />
 
-        </div>
-      )}
+          {/* Cart Page */}
+          <Route path="/cart" element={<Cart />} />
 
-      {/* Product List Page */}
-      {showProducts && <ProductList />}
+        </Routes>
 
-    </div>
+      </div>
+    </Router>
   );
 }
 
