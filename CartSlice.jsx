@@ -1,80 +1,51 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { removeFromCart } from "../redux/cartSlice";
-import { useNavigate } from "react-router-dom";
+import { createSlice } from "@reduxjs/toolkit";
 
-function CartItem() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+const initialState = {
+  items: [],
+};
 
-  const cartItems = useSelector((state) => state.cart.items);
+const cartSlice = createSlice({
+  name: "cart",
+  initialState,
 
-  // ✅ calcul du total général (équivalent calculateTotalAmount)
-  const calculateTotalAmount = () => {
-    return cartItems.reduce((total, item) => total + item.price, 0);
-  };
+  reducers: {
+    // ➕ Ajouter produit
+    addItem: (state, action) => {
+      const item = state.items.find(
+        (product) => product.id === action.payload.id
+      );
 
-  const handleRemove = (id) => {
-    dispatch(removeFromCart(id));
-  };
+      if (item) {
+        item.quantity += 1;
+      } else {
+        state.items.push({ ...action.payload, quantity: 1 });
+      }
+    },
 
-  return (
-    <div className="cart-container">
+    // ❌ Supprimer produit
+    removeItem: (state, action) => {
+      state.items = state.items.filter(
+        (item) => item.id !== action.payload
+      );
+    },
 
-      <h1>🛒 Your Cart</h1>
+    // 🔄 Modifier quantité
+    updateQuantity: (state, action) => {
+      const { id, quantity } = action.payload;
 
-      {cartItems.length === 0 ? (
-        <div>
-          <p>Your cart is empty</p>
+      const item = state.items.find((product) => product.id === id);
 
-          <button onClick={() => navigate("/products")}>
-            Continue Shopping
-          </button>
-        </div>
-      ) : (
-        <>
-          {/* LISTE DES ARTICLES */}
-          <div className="cart-items">
-            {cartItems.map((item) => (
-              <div key={item.id} className="cart-item">
+      if (item) {
+        item.quantity = quantity;
+      }
+    },
+  },
+});
 
-                <img src={item.image} alt={item.name} />
+export const {
+  addItem,
+  removeItem,
+  updateQuantity,
+} = cartSlice.actions;
 
-                <div className="item-details">
-                  <h3>{item.name}</h3>
-                  <p>{item.price} $</p>
-                </div>
-
-                <button
-                  className="remove-btn"
-                  onClick={() => handleRemove(item.id)}
-                >
-                  Remove
-                </button>
-
-              </div>
-            ))}
-          </div>
-
-          {/* TOTAL DYNAMIQUE */}
-          <div className="cart-summary">
-            <h2>Total: {calculateTotalAmount()} $</h2>
-          </div>
-
-          {/* ACTIONS */}
-          <div className="cart-actions">
-            <button onClick={() => navigate("/products")}>
-              Continue Shopping
-            </button>
-
-            <button className="checkout-btn">
-              Checkout
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-export default CartItem;
+export default cartSlice.reducer;
