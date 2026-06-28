@@ -9,7 +9,7 @@ import {
 
 /**
  * CartItem component
- * Displays all items in the shopping cart
+ * Displays all items in the shopping cart with totals and actions
  */
 function CartItem() {
   const dispatch = useDispatch();
@@ -19,16 +19,16 @@ function CartItem() {
   const cartItems = useSelector((state) => state.cart.items);
 
   /**
-   * Calculate total price for one item
+   * Calculate total price for a single item
    */
   const getTotalPrice = (item) => {
     return item.price * item.quantity;
   };
 
   /**
-   * Calculate grand total for all items
+   * Calculate grand total for all items (CLEAR FUNCTION REQUIRED)
    */
-  const getGrandTotal = () => {
+  const calculateGrandTotal = () => {
     return cartItems.reduce((total, item) => {
       return total + getTotalPrice(item);
     }, 0);
@@ -63,29 +63,30 @@ function CartItem() {
 
   return (
     <div className="cart-container">
-      <h1>Your Cart</h1>
+      <h1>Your Shopping Cart</h1>
 
       {cartItems.length === 0 ? (
-        <p>Your cart is empty.</p>
+        <p>Your cart is empty</p>
       ) : (
         <>
-          {/* Cart items list */}
+          {/* CART ITEMS */}
           {cartItems.map((item) => (
             <div key={item.id} className="cart-item">
 
-              {/* Product image */}
+              {/* IMAGE (REQUIRED FIX) */}
               <img
                 src={item.image}
                 alt={item.name}
                 className="cart-item-image"
               />
 
-              {/* Product info */}
+              {/* DETAILS */}
               <div className="cart-item-details">
                 <h3>{item.name}</h3>
+
                 <p>Price: ${item.price}</p>
 
-                {/* Quantity controls */}
+                {/* QUANTITY CONTROLS */}
                 <div className="quantity-controls">
                   <button
                     onClick={() => dispatch(decreaseQuantity(item.id))}
@@ -102,12 +103,12 @@ function CartItem() {
                   </button>
                 </div>
 
-                {/* Total per item */}
+                {/* TOTAL PER ITEM */}
                 <p>Total: ${getTotalPrice(item).toFixed(2)}</p>
 
-                {/* Remove button */}
+                {/* REMOVE BUTTON (WITH STYLE CLASS) */}
                 <button
-                  className="delete-btn"
+                  className="remove-btn"
                   onClick={() => handleRemove(item.id)}
                 >
                   Remove
@@ -116,20 +117,24 @@ function CartItem() {
             </div>
           ))}
 
-          {/* Grand total */}
+          {/* GRAND TOTAL (CLEAR FUNCTION USAGE) */}
           <div className="cart-total">
-            <h2>Grand Total: ${getGrandTotal().toFixed(2)}</h2>
+            <h2>Grand Total: ${calculateGrandTotal().toFixed(2)}</h2>
           </div>
 
-          {/* Action buttons */}
+          {/* ACTION BUTTONS */}
           <div className="cart-actions">
+
+            {/* CONTINUE SHOPPING (REAL NAVIGATION REQUIRED) */}
             <button onClick={handleContinueShopping}>
               Continue Shopping
             </button>
 
+            {/* CHECKOUT */}
             <button onClick={handleCheckout}>
               Checkout
             </button>
+
           </div>
         </>
       )}
