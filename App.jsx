@@ -1,34 +1,43 @@
-import React, { useState } from "react";
-import AboutUs from "./AboutUs";
-import ProductList from "./ProductList";
+import { useState } from "react";
+import ProductList from "./components/ProductList";
 
+/**
+ * Main application component
+ * Handles navigation between landing page and product list
+ */
 function App() {
-  // State pour contrôler l'affichage des produits
+  // State to control when product list is displayed
   const [showProducts, setShowProducts] = useState(false);
 
-  // Fonction déclenchée par le bouton Get Started
+  /**
+   * Handles "Get Started" button click
+   * Shows the product list page
+   */
   const handleGetStarted = () => {
     setShowProducts(true);
   };
 
   return (
-    <div>
-      {/* Titre principal de l'application (exigence du projet) */}
-      <h1>Welcome to Paradise Nursery</h1>
+    <div className="app-container">
 
-      {/* Affichage conditionnel : About + bouton OU produits */}
-      {!showProducts ? (
-        <div>
-          <AboutUs />
+      {/* Landing page */}
+      {!showProducts && (
+        <div className="landing-page">
+          <h1>Welcome to Paradise Nursery</h1>
 
-          {/* Bouton pour afficher la liste des produits */}
+          <p>
+            Discover beautiful indoor plants and bring nature into your home.
+          </p>
+
           <button onClick={handleGetStarted}>
             Get Started
           </button>
         </div>
-      ) : (
-        <ProductList />
       )}
+
+      {/* Product list page */}
+      {showProducts && <ProductList />}
+
     </div>
   );
 }
