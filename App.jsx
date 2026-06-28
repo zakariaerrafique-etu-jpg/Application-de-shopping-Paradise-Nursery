@@ -1,42 +1,28 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
+import { useState } from "react";
+import "./App.css";
+import Navigation from "./components/Navigation";
 import ProductList from "./components/ProductList";
-import Cart from "./components/Cart";
 
 function App() {
+  const [showProducts, setShowProducts] = useState(false);
+
   return (
-    <Router>
-      <div className="app-container">
+    <div className="app">
+      <Navigation />
 
-        <Routes>
+      {!showProducts ? (
+        <div className="landing">
+          <h1>Welcome to Paradise Nursery</h1>
+          <p>Your one-stop shop for beautiful indoor plants</p>
 
-          {/* Landing Page */}
-          <Route
-            path="/"
-            element={
-              <div className="landing-page">
-                <h1>Welcome to Paradise Nursery</h1>
-                <p>
-                  Discover a wide variety of beautiful indoor plants and bring nature into your home.
-                </p>
-
-                <a href="/products">
-                  <button>Get Started</button>
-                </a>
-              </div>
-            }
-          />
-
-          {/* Products Page */}
-          <Route path="/products" element={<ProductList />} />
-
-          {/* Cart Page */}
-          <Route path="/cart" element={<Cart />} />
-
-        </Routes>
-
-      </div>
-    </Router>
+          <button onClick={() => setShowProducts(true)}>
+            Get Started
+          </button>
+        </div>
+      ) : (
+        <ProductList />
+      )}
+    </div>
   );
 }
 
