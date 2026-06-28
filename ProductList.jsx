@@ -1,82 +1,106 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 
-/**
- * ProductList component
- * Displays plants grouped by category
- */
-function ProductList({ plants }) {
+const products = [
+  {
+    id: 1,
+    name: "Aloe Vera",
+    category: "Medicinal Plants",
+    price: 10,
+    image: "https://via.placeholder.com/150"
+  },
+  {
+    id: 2,
+    name: "Lavender",
+    category: "Aromatic Plants",
+    price: 12,
+    image: "https://via.placeholder.com/150"
+  },
+  {
+    id: 3,
+    name: "Mint",
+    category: "Aromatic Plants",
+    price: 8,
+    image: "https://via.placeholder.com/150"
+  },
+  {
+    id: 4,
+    name: "Basil",
+    category: "Medicinal Plants",
+    price: 9,
+    image: "https://via.placeholder.com/150"
+  },
+  {
+    id: 5,
+    name: "Rosemary",
+    category: "Aromatic Plants",
+    price: 11,
+    image: "https://via.placeholder.com/150"
+  },
+  {
+    id: 6,
+    name: "Snake Plant",
+    category: "Air Purifying Plants",
+    price: 15,
+    image: "https://via.placeholder.com/150"
+  }
+];
+
+function ProductList() {
   const dispatch = useDispatch();
 
-  // Track added items (to disable button)
-  const [addedItems, setAddedItems] = useState({});
+  const cartItems = useSelector((state) => state.cart.items);
 
-  /**
-   * Handle adding plant to cart
-   */
-  const handleAddToCart = (plant) => {
-    dispatch(addToCart(plant));
-
-    // Mark item as added (disable button)
-    setAddedItems((prev) => ({
-      ...prev,
-      [plant.id]: true,
-    }));
+  // Ajouter au panier
+  const handleAddToCart = (product) => {
+    dispatch(addToCart(product));
   };
 
-  /**
-   * Group plants by category
-   */
-  const groupedPlants = plants.reduce((acc, plant) => {
-    const category = plant.category;
+  // Regrouper les produits par catégorie
+  const groupedProducts = products.reduce((acc, product) => {
+    const category = product.category;
 
     if (!acc[category]) {
       acc[category] = [];
     }
 
-    acc[category].push(plant);
+    acc[category].push(product);
     return acc;
   }, {});
 
   return (
-    <div className="product-list-container">
+    <div className="product-list">
+      <h1>🌿 Paradise Nursery - Our Plants</h1>
 
-      <h1>Our Plants</h1>
-
-      {/* Loop through categories */}
-      {Object.keys(groupedPlants).map((category) => (
+      {Object.keys(groupedProducts).map((category) => (
         <div key={category} className="category-section">
 
-          {/* Category title */}
+          {/* Category Title */}
           <h2>{category}</h2>
 
-          <div className="plants-grid">
+          <div className="products-grid">
 
-            {/* Plants inside category */}
-            {groupedPlants[category].map((plant) => (
-              <div key={plant.id} className="plant-card">
+            {groupedProducts[category].map((product) => (
+              <div key={product.id} className="product-card">
 
                 {/* Image */}
-                <img
-                  src={plant.image}
-                  alt={plant.name}
-                  className="plant-image"
-                />
+                <img src={product.image} alt={product.name} />
 
-                {/* Info */}
-                <h3>{plant.name}</h3>
-                <p>Price: ${plant.price}</p>
+                {/* Name */}
+                <h3>{product.name}</h3>
 
-                {/* Add to Cart button */}
+                {/* Price */}
+                <p>{product.price} $</p>
+
+                {/* Add to cart button */}
                 <button
-                  onClick={() => handleAddToCart(plant)}
-                  disabled={addedItems[plant.id]}
-                  className={
-                    addedItems[plant.id] ? "added-btn" : "add-btn"
-                  }
+                  onClick={() => handleAddToCart(product)}
+                  disabled={cartItems.some((item) => item.id === product.id)}
                 >
-                  {addedItems[plant.id] ? "Added" : "Add to Cart"}
+                  {cartItems.some((item) => item.id === product.id)
+                    ? "Added"
+                    : "Add to Cart"}
                 </button>
 
               </div>
@@ -85,7 +109,6 @@ function ProductList({ plants }) {
           </div>
         </div>
       ))}
-
     </div>
   );
 }
