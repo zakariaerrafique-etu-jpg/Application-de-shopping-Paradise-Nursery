@@ -1,6 +1,10 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { removeItem, updateQuantity, clearCart } from "../redux/cartSlice";
+import {
+  removeItem,
+  updateQuantity,
+  clearCart,
+} from "../redux/CartSlice";
 import { useNavigate } from "react-router-dom";
 import "./CartItem.css";
 
@@ -10,40 +14,52 @@ const CartItem = () => {
 
   const cartItems = useSelector((state) => state.cart.items);
 
-  // 🔢 Calcul du total d’un article
+  // 🧮 total par article
   const getItemTotal = (item) => {
     return item.price * item.quantity;
   };
 
-  // 🧮 Calcul du total global (OBLIGATOIRE pour la note)
+  // 🧮 total global (obligatoire)
   const calculateTotalAmount = () => {
-    return cartItems.reduce((total, item) => {
-      return total + item.price * item.quantity;
-    }, 0);
+    return cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
   };
 
-  // ➕ / ➖ quantité
+  // ➕ ➖ quantité
   const handleQuantityChange = (item, type) => {
-    const newQuantity =
-      type === "increase" ? item.quantity + 1 : item.quantity - 1;
+    let newQty =
+      type === "increase"
+        ? item.quantity + 1
+        : item.quantity - 1;
 
-    if (newQuantity > 0) {
-      dispatch(updateQuantity({ id: item.id, quantity: newQuantity }));
+    // ❗ suppression automatique si quantité = 0
+    if (newQty <= 0) {
+      dispatch(removeItem(item.id));
+    } else {
+      dispatch(
+        updateQuantity({
+          id: item.id,
+          quantity: newQty,
+        })
+      );
     }
   };
 
-  // ❌ suppression article
+  // ❌ suppression manuelle
   const handleRemove = (id) => {
     dispatch(removeItem(id));
   };
 
-  // 🛒 vider panier
+  // 🧹 vider panier
   const handleClearCart = () => {
     dispatch(clearCart());
   };
 
   return (
     <div className="cart-container">
+
       <h2>Shopping Cart</h2>
 
       {cartItems.length === 0 ? (
@@ -51,8 +67,8 @@ const CartItem = () => {
           <p>Your cart is empty</p>
 
           <button
+            className="continue-btn"
             onClick={() => navigate("/")}
-            className="continue-shopping"
           >
             Continue Shopping
           </button>
@@ -60,17 +76,26 @@ const CartItem = () => {
       ) : (
         <>
           <div className="cart-items">
+
             {cartItems.map((item) => (
               <div key={item.id} className="cart-item">
+
+                {/* image */}
                 <img src={item.image} alt={item.name} />
 
-                <div className="item-details">
+                {/* infos */}
+                <div className="item-info">
                   <h4>{item.name}</h4>
                   <p>${item.price}</p>
 
-                  <div className="quantity-controls">
+                  {/* quantity controls */}
+                  <div className="qty-controls">
+
                     <button
-                      onClick={() => handleQuantityChange(item, "decrease")}
+                      className="qty-btn"
+                      onClick={() =>
+                        handleQuantityChange(item, "decrease")
+                      }
                     >
                       -
                     </button>
@@ -78,17 +103,22 @@ const CartItem = () => {
                     <span>{item.quantity}</span>
 
                     <button
-                      onClick={() => handleQuantityChange(item, "increase")}
+                      className="qty-btn"
+                      onClick={() =>
+                        handleQuantityChange(item, "increase")
+                      }
                     >
                       +
                     </button>
                   </div>
 
+                  {/* total item */}
                   <p className="item-total">
                     Total: ${getItemTotal(item)}
                   </p>
                 </div>
 
+                {/* ❌ remove button */}
                 <button
                   className="remove-btn"
                   onClick={() => handleRemove(item.id)}
@@ -97,30 +127,30 @@ const CartItem = () => {
                 </button>
               </div>
             ))}
+
           </div>
 
-          {/* 🧾 résumé panier */}
+          {/* 🧾 summary */}
           <div className="cart-summary">
-            <h3>Total Amount: ${calculateTotalAmount()}</h3>
 
-            <div className="cart-actions">
-              <button
-                className="clear-btn"
-                onClick={handleClearCart}
-              >
-                Clear Cart
-              </button>
-
-              <button
-                className="checkout-btn"
-                onClick={() => alert("Checkout successful!")}
-              >
-                Checkout
-              </button>
-            </div>
+            <h3>Total: ${calculateTotalAmount()}</h3>
 
             <button
-              className="continue-shopping"
+              className="clear-btn"
+              onClick={handleClearCart}
+            >
+              Clear Cart
+            </button>
+
+            <button
+              className="checkout-btn"
+              onClick={() => alert("Order placed!")}
+            >
+              Checkout
+            </button>
+
+            <button
+              className="continue-btn"
               onClick={() => navigate("/")}
             >
               Continue Shopping
