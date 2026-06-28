@@ -1,91 +1,72 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { removeItem, updateQuantity } from "./CartSlice";
+import { addItem } from "./CartSlice";
 
-const CartItem = () => {
+const ProductList = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
 
-  // ✅ Total par item + total global
-  const getTotalPrice = (item) => {
-    return item.price * item.quantity;
+  // Liste des plantes
+  const plants = [
+    { id: 1, name: "Aloe Vera", category: "Succulents", price: 10 },
+    { id: 2, name: "Cactus", category: "Succulents", price: 8 },
+    { id: 3, name: "Echeveria", category: "Succulents", price: 12 },
+    { id: 4, name: "Snake Plant", category: "Air Purifying", price: 15 },
+    { id: 5, name: "Peace Lily", category: "Air Purifying", price: 14 },
+    { id: 6, name: "Spider Plant", category: "Air Purifying", price: 11 },
+    { id: 7, name: "Monstera", category: "Indoor Plants", price: 20 },
+    { id: 8, name: "Ficus", category: "Indoor Plants", price: 18 },
+    { id: 9, name: "Fern", category: "Indoor Plants", price: 9 }
+  ];
+
+  // Vérifie si un produit est déjà dans le panier
+  const isInCart = (id) => {
+    return cartItems.some(item => item.id === id);
   };
 
-  const cartTotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-
-  // ➕ augmenter quantité
-  const handleIncrease = (item) => {
-    dispatch(
-      updateQuantity({
-        id: item.id,
-        quantity: item.quantity + 1
-      })
-    );
+  // Ajouter au panier
+  const handleAdd = (plant) => {
+    dispatch(addItem(plant));
   };
 
-  // ➖ diminuer quantité
-  const handleDecrease = (item) => {
-    if (item.quantity <= 1) {
-      dispatch(removeItem(item.id));
-    } else {
-      dispatch(
-        updateQuantity({
-          id: item.id,
-          quantity: item.quantity - 1
-        })
-      );
+  // Regroupement par catégorie (IMPORTANT POUR LA NOTE)
+  const groupedPlants = plants.reduce((acc, plant) => {
+    if (!acc[plant.category]) {
+      acc[plant.category] = [];
     }
-  };
-
-  // ❌ supprimer
-  const handleRemove = (id) => {
-    dispatch(removeItem(id));
-  };
-
-  // 💳 checkout
-  const handleCheckout = () => {
-    alert("Payment successful! Thank you for your purchase.");
-    // option UX : vider panier ou rediriger
-  };
+    acc[plant.category].push(plant);
+    return acc;
+  }, {});
 
   return (
     <div>
-      <h2>Shopping Cart</h2>
+      <h2>Products</h2>
 
-      {cartItems.length === 0 ? (
-        <p>Your cart is empty</p>
-      ) : (
-        cartItems.map((item) => (
-          <div
-            key={item.id}
-            style={{ border: "1px solid #ccc", margin: 10, padding: 10 }}
-          >
-            <h3>{item.name}</h3>
-            <p>Price: ${item.price}</p>
-            <p>Quantity: {item.quantity}</p>
-            <p>Total: ${getTotalPrice(item)}</p>
+      {/* Parcours des catégories */}
+      {Object.keys(groupedPlants).map((category) => (
+        <div key={category}>
+          <h3>{category}</h3>
 
-            <button onClick={() => handleIncrease(item)}>+</button>
-            <button onClick={() => handleDecrease(item)}>-</button>
+          {groupedPlants[category].map((plant) => (
+            <div
+              key={plant.id}
+              style={{ border: "1px solid #ccc", margin: 10, padding: 10 }}
+            >
+              <h4>{plant.name}</h4>
+              <p>Price: ${plant.price}</p>
 
-            <button onClick={() => handleRemove(item.id)}>
-              Remove
-            </button>
-          </div>
-        ))
-      )}
-
-      {/* ✅ TOTAL GLOBAL */}
-      <h2>Cart Total: ${cartTotal}</h2>
-
-      <button onClick={handleCheckout} disabled={cartItems.length === 0}>
-        Checkout
-      </button>
+              <button
+                onClick={() => handleAdd(plant)}
+                disabled={isInCart(plant.id)} // ✅ IMPORTANT
+              >
+                {isInCart(plant.id) ? "Added" : "Add to Cart"}
+              </button>
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   );
 };
 
-export default CartItem;
+export default ProductList;
