@@ -1,116 +1,67 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../redux/cartSlice";
+import { addItem } from "../redux/cartSlice";
+import "./ProductList.css";
 
-const products = [
-  {
-    id: 1,
-    name: "Aloe Vera",
-    category: "Medicinal Plants",
-    price: 10,
-    image: "https://via.placeholder.com/150"
-  },
-  {
-    id: 2,
-    name: "Lavender",
-    category: "Aromatic Plants",
-    price: 12,
-    image: "https://via.placeholder.com/150"
-  },
-  {
-    id: 3,
-    name: "Mint",
-    category: "Aromatic Plants",
-    price: 8,
-    image: "https://via.placeholder.com/150"
-  },
-  {
-    id: 4,
-    name: "Basil",
-    category: "Medicinal Plants",
-    price: 9,
-    image: "https://via.placeholder.com/150"
-  },
-  {
-    id: 5,
-    name: "Rosemary",
-    category: "Aromatic Plants",
-    price: 11,
-    image: "https://via.placeholder.com/150"
-  },
-  {
-    id: 6,
-    name: "Snake Plant",
-    category: "Air Purifying Plants",
-    price: 15,
-    image: "https://via.placeholder.com/150"
-  }
-];
-
-function ProductList() {
+const ProductList = ({ plants }) => {
   const dispatch = useDispatch();
-
   const cartItems = useSelector((state) => state.cart.items);
 
-  // Ajouter au panier
-  const handleAddToCart = (product) => {
-    dispatch(addToCart(product));
+  // Vérifie si un produit est déjà dans le panier
+  const isInCart = (id) => {
+    return cartItems.some((item) => item.id === id);
   };
 
-  // Regrouper les produits par catégorie
-  const groupedProducts = products.reduce((acc, product) => {
-    const category = product.category;
+  // Ajout panier
+  const handleAddToCart = (plant) => {
+    dispatch(addItem(plant));
+  };
 
-    if (!acc[category]) {
-      acc[category] = [];
+  // Regroupement par catégorie
+  const groupedPlants = plants.reduce((acc, plant) => {
+    if (!acc[plant.category]) {
+      acc[plant.category] = [];
     }
-
-    acc[category].push(product);
+    acc[plant.category].push(plant);
     return acc;
   }, {});
 
   return (
     <div className="product-list">
-      <h1>🌿 Paradise Nursery - Our Plants</h1>
+      <h2 className="title">Our Plants Collection</h2>
 
-      {Object.keys(groupedProducts).map((category) => (
+      {Object.keys(groupedPlants).map((category) => (
         <div key={category} className="category-section">
+          <h3 className="category-title">{category}</h3>
 
-          {/* Category Title */}
-          <h2>{category}</h2>
+          {/* Vérification pédagogique du nombre de plantes */}
+          {groupedPlants[category].length < 6 && (
+            <p className="warning">
+              ⚠ This category has less than 6 plants
+            </p>
+          )}
 
-          <div className="products-grid">
+          <div className="plants-grid">
+            {groupedPlants[category].map((plant) => (
+              <div key={plant.id} className="plant-card">
+                <img src={plant.image} alt={plant.name} />
+                <h4>{plant.name}</h4>
+                <p>${plant.price}</p>
 
-            {groupedProducts[category].map((product) => (
-              <div key={product.id} className="product-card">
-
-                {/* Image */}
-                <img src={product.image} alt={product.name} />
-
-                {/* Name */}
-                <h3>{product.name}</h3>
-
-                {/* Price */}
-                <p>{product.price} $</p>
-
-                {/* Add to cart button */}
                 <button
-                  onClick={() => handleAddToCart(product)}
-                  disabled={cartItems.some((item) => item.id === product.id)}
+                  onClick={() => handleAddToCart(plant)}
+                  disabled={isInCart(plant.id)}
+                  className={isInCart(plant.id) ? "disabled-btn" : "add-btn"}
                 >
-                  {cartItems.some((item) => item.id === product.id)
-                    ? "Added"
-                    : "Add to Cart"}
+                  {isInCart(plant.id) ? "Added ✓" : "Add to Cart"}
                 </button>
-
               </div>
             ))}
-
           </div>
         </div>
       ))}
     </div>
   );
-}
+};
 
 export default ProductList;
