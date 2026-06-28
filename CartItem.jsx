@@ -1,43 +1,88 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  removeFromCart,
-  increaseQty,
-  decreaseQty,
-} from "../features/cart/CartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { removeItem, updateQuantity } from "./CartSlice";
 
 const CartItem = () => {
   const dispatch = useDispatch();
-  const { items, totalPrice } = useSelector(state => state.cart);
+  const cartItems = useSelector((state) => state.cart.items);
+
+  // ✅ Total par item + total global
+  const getTotalPrice = (item) => {
+    return item.price * item.quantity;
+  };
+
+  const cartTotal = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+
+  // ➕ augmenter quantité
+  const handleIncrease = (item) => {
+    dispatch(
+      updateQuantity({
+        id: item.id,
+        quantity: item.quantity + 1
+      })
+    );
+  };
+
+  // ➖ diminuer quantité
+  const handleDecrease = (item) => {
+    if (item.quantity <= 1) {
+      dispatch(removeItem(item.id));
+    } else {
+      dispatch(
+        updateQuantity({
+          id: item.id,
+          quantity: item.quantity - 1
+        })
+      );
+    }
+  };
+
+  // ❌ supprimer
+  const handleRemove = (id) => {
+    dispatch(removeItem(id));
+  };
+
+  // 💳 checkout
+  const handleCheckout = () => {
+    alert("Payment successful! Thank you for your purchase.");
+    // option UX : vider panier ou rediriger
+  };
 
   return (
     <div>
-      <h2>Cart</h2>
+      <h2>Shopping Cart</h2>
 
-      {items.map(item => (
-        <div key={item.id}>
-          <p>{item.name}</p>
-          <p>Price: ${item.price}</p>
-          <p>Qty: {item.quantity}</p>
-          <p>Total: ${item.price * item.quantity}</p>
+      {cartItems.length === 0 ? (
+        <p>Your cart is empty</p>
+      ) : (
+        cartItems.map((item) => (
+          <div
+            key={item.id}
+            style={{ border: "1px solid #ccc", margin: 10, padding: 10 }}
+          >
+            <h3>{item.name}</h3>
+            <p>Price: ${item.price}</p>
+            <p>Quantity: {item.quantity}</p>
+            <p>Total: ${getTotalPrice(item)}</p>
 
-          <button onClick={() => dispatch(increaseQty(item.id))}>+</button>
-          <button onClick={() => dispatch(decreaseQty(item.id))}>-</button>
+            <button onClick={() => handleIncrease(item)}>+</button>
+            <button onClick={() => handleDecrease(item)}>-</button>
 
-          <button onClick={() => dispatch(removeFromCart(item.id))}>
-            Remove
-          </button>
-        </div>
-      ))}
+            <button onClick={() => handleRemove(item.id)}>
+              Remove
+            </button>
+          </div>
+        ))
+      )}
 
-      <h3>Total Price: ${totalPrice}</h3>
+      {/* ✅ TOTAL GLOBAL */}
+      <h2>Cart Total: ${cartTotal}</h2>
 
-      <button onClick={() => alert("Coming Soon")}>
+      <button onClick={handleCheckout} disabled={cartItems.length === 0}>
         Checkout
-      </button>
-
-      <button onClick={() => window.location.href = "/plants"}>
-        Continue Shopping
       </button>
     </div>
   );
