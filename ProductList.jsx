@@ -1,49 +1,94 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addToCart } from "../features/cart/CartSlice";
-
-const products = [
-  { id: 1, name: "Aloe Vera", price: 10, category: "Succulents" },
-  { id: 2, name: "Cactus", price: 12, category: "Succulents" },
-  { id: 3, name: "Basil", price: 8, category: "Herbs" },
-  { id: 4, name: "Mint", price: 7, category: "Herbs" },
-  { id: 5, name: "Fern", price: 15, category: "Indoor" },
-  { id: 6, name: "Snake Plant", price: 20, category: "Indoor" },
-];
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addItem } from "./CartSlice";
 
 const ProductList = () => {
   const dispatch = useDispatch();
-  const [added, setAdded] = useState([]);
+  const cart = useSelector((state) => state.cart.items);
 
-  const handleAdd = (product) => {
-    dispatch(addToCart(product));
-    setAdded([...added, product.id]);
+  const plants = [
+    {
+      id: 1,
+      name: "Aloe Vera",
+      category: "Succulents",
+      price: 10,
+      image: "/images/aloe.jpg"
+    },
+    {
+      id: 2,
+      name: "Cactus",
+      category: "Succulents",
+      price: 8,
+      image: "/images/cactus.jpg"
+    },
+    {
+      id: 3,
+      name: "Snake Plant",
+      category: "Air Purifying",
+      price: 15,
+      image: "/images/snake.jpg"
+    },
+    {
+      id: 4,
+      name: "Peace Lily",
+      category: "Air Purifying",
+      price: 12,
+      image: "/images/peace.jpg"
+    },
+    {
+      id: 5,
+      name: "Fern",
+      category: "Indoor Plants",
+      price: 9,
+      image: "/images/fern.jpg"
+    },
+    {
+      id: 6,
+      name: "Monstera",
+      category: "Indoor Plants",
+      price: 20,
+      image: "/images/monstera.jpg"
+    }
+  ];
+
+  const isInCart = (id) => {
+    return cart.some(item => item.id === id);
+  };
+
+  const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+
+  const handleAdd = (plant) => {
+    dispatch(addItem(plant));
   };
 
   return (
     <div>
-      <h2>Plants</h2>
+      <h2>Products</h2>
 
-      {["Succulents", "Herbs", "Indoor"].map(cat => (
-        <div key={cat}>
-          <h3>{cat}</h3>
-          <div>
-            {products
-              .filter(p => p.category === cat)
-              .map(p => (
-                <div key={p.id}>
-                  <p>{p.name}</p>
-                  <p>${p.price}</p>
+      <div>
+        🛒 Total Items in Cart: {totalItems}
+      </div>
 
-                  <button
-                    disabled={added.includes(p.id)}
-                    onClick={() => handleAdd(p)}
-                  >
-                    Add to Cart
-                  </button>
-                </div>
-              ))}
-          </div>
+      {plants.map((plant) => (
+        <div key={plant.id} style={{ border: "1px solid #ccc", margin: 10, padding: 10 }}>
+          
+          <img 
+            src={plant.image} 
+            alt={plant.name} 
+            width="100"
+          />
+
+          <h3>{plant.name}</h3>
+          <p>{plant.category}</p>
+          <p>${plant.price}</p>
+
+          <button
+            onClick={() => handleAdd(plant)}
+            disabled={isInCart(plant.id)}
+          >
+            {isInCart(plant.id) ? "Added" : "Add to Cart"}
+          </button>
+
         </div>
       ))}
     </div>
